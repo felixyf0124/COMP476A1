@@ -45,6 +45,8 @@ public class Character : MonoBehaviour
 	public float movingAreaX;
 	public float movingAreaZ;
 
+	MoveStrategy move;
+
 	void Start()
 	{
 		//cache the animator
