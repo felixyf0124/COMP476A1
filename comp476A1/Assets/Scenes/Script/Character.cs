@@ -50,8 +50,8 @@ public class Character : MonoBehaviour
 		//cache the animator
 		_animator = GetComponent<Animator>();
 
-		line1.rotation = Quaternion.Euler(new Vector3(0.0f, m_spotAngle / 2.0f , 0.0f));
-		line2.rotation = Quaternion.Euler(new Vector3(0.0f, -m_spotAngle / 2.0f, 0.0f));
+		//line1.rotation = Quaternion.Euler(new Vector3(0.0f, m_spotAngle / 2.0f , 0.0f));
+		//line2.rotation = Quaternion.Euler(new Vector3(0.0f, -m_spotAngle / 2.0f, 0.0f));
 
 		moveType = 0;
 
@@ -117,6 +117,9 @@ public class Character : MonoBehaviour
 				_velocity = 0;
 		}
 
+
+
+
 		// TODO: Translate the game object in world space
 		transform.position += transform.forward * Time.deltaTime * _velocity;
 		dd.text = transform.position.x + "|" + transform.position.y;
@@ -143,6 +146,22 @@ public class Character : MonoBehaviour
 		}
 
 		transform.position = new Vector3(modx, transform.position.y, modz);
+
+
+		//adjust spot angle
+
+		float ratio = 1 - (_velocity) / (m_maxVelocity * 1.5f);
+		line1.localRotation = Quaternion.Euler(
+			new Vector3(
+				0.0f,
+				m_spotAngle * (ratio) / 2.0f, 
+				0.0f));
+		line2.localRotation = Quaternion.Euler(
+			new Vector3(
+				0.0f,
+				- m_spotAngle * (ratio) / 2.0f, 
+				0.0f));
+
 
 		// set the blend parameter in your animator's movement blend tree
 		_animator.SetFloat("Blend", _velocity / m_maxVelocity);
