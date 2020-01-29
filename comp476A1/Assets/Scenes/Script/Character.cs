@@ -220,7 +220,6 @@ public class Character : MonoBehaviour
 					{
 						_velocity = 0;
 						transform.position = tar.transform.position;
-						//Debug.Log("called");
 					}
 					else
 					{
@@ -228,7 +227,7 @@ public class Character : MonoBehaviour
 
 						float angle = Vector3.Angle(dir, transform.forward);
 						float spotAngle = line1.localEulerAngles.y;
-						Debug.Log(angle);
+
 						if (angle > spotAngle)
 						{
 							_velocity = 0;
@@ -317,40 +316,40 @@ public class Character : MonoBehaviour
 				Vector3 currentTarPos = pursued[0].transform.position;
 				Vector3 tarPos2 = new Vector3();
 
-				if (Mathf.Abs(currentTarPos.x) > 0.25 * movingAreaX)
-				{
-					if (transform.position.x > 0)
-					{
-						tarPos2.x += movingAreaX;
-					}
-					else
-					{
-						tarPos2.x -= movingAreaX;
+				//if (Mathf.Abs(currentTarPos.x) > 0.25 * movingAreaX)
+				//{
+				//	if (transform.position.x > 0)
+				//	{
+				//		tarPos2.x += movingAreaX;
+				//	}
+				//	else
+				//	{
+				//		tarPos2.x -= movingAreaX;
 
-					}
-				}
+				//	}
+				//}
 
-				if (Mathf.Abs(currentTarPos.z) > 0.25 * movingAreaX)
-				{
-					if (transform.position.z > 0)
-					{
-						tarPos2.z += movingAreaX;
-					}
-					else
-					{
-						tarPos2.z -= movingAreaX;
+				//if (Mathf.Abs(currentTarPos.z) > 0.25 * movingAreaX)
+				//{
+				//	if (transform.position.z > 0)
+				//	{
+				//		tarPos2.z += movingAreaX;
+				//	}
+				//	else
+				//	{
+				//		tarPos2.z -= movingAreaX;
 
-					}
-				}
+				//	}
+				//}
 
 				Vector3 cDir = currentTarPos - transform.position;
-				Vector3 cDir2 = tarPos2 - transform.position;
+				//Vector3 cDir2 = tarPos2 - transform.position;
 
-				if(cDir.magnitude> cDir2.magnitude)
-				{
-					cDir = cDir2;
-					currentTarPos = tarPos2;
-				}
+				//if(cDir.magnitude> cDir2.magnitude)
+				//{
+				//	cDir = cDir2;
+				//	currentTarPos = tarPos2;
+				//}
 
 
 				Vector3 nextTarPos = pursued[0].transform.forward * vMax + currentTarPos;
@@ -442,41 +441,41 @@ public class Character : MonoBehaviour
 
 		Vector3 tarPos = tagged.transform.position;
 
-		Vector3 tarPos2 = new Vector3();
+		//Vector3 tarPos2 = new Vector3();
 
-		if (Mathf.Abs(tarPos.x) > 0.25 * movingAreaX)
-		{
-			if (transform.position.x > 0)
-			{
-				tarPos2.x += movingAreaX;
-			}
-			else
-			{
-				tarPos2.x -= movingAreaX;
+		//if (Mathf.Abs(tarPos.x) > 0.25 * movingAreaX)
+		//{
+		//	if (transform.position.x > 0)
+		//	{
+		//		tarPos2.x += movingAreaX;
+		//	}
+		//	else
+		//	{
+		//		tarPos2.x -= movingAreaX;
 
-			}
-		}
+		//	}
+		//}
 
-		if (Mathf.Abs(tarPos.z) > 0.25 * movingAreaX)
-		{
-			if (transform.position.z > 0)
-			{
-				tarPos2.z += movingAreaX;
-			}
-			else
-			{
-				tarPos2.z -= movingAreaX;
+		//if (Mathf.Abs(tarPos.z) > 0.25 * movingAreaX)
+		//{
+		//	if (transform.position.z > 0)
+		//	{
+		//		tarPos2.z += movingAreaX;
+		//	}
+		//	else
+		//	{
+		//		tarPos2.z -= movingAreaX;
 
-			}
-		}
+		//	}
+		//}
 
 
 		Vector3 cDir = tarPos - transform.position;
-		Vector3 cDir2 = tarPos2 - transform.position;
-		if (cDir.magnitude > cDir2.magnitude)
-		{
-			cDir = cDir2;
-		}
+		//Vector3 cDir2 = tarPos2 - transform.position;
+		//if (cDir.magnitude > cDir2.magnitude)
+		//{
+		//	cDir = cDir2;
+		//}
 
 
 
@@ -547,47 +546,16 @@ public class Character : MonoBehaviour
 
 		GameObject tagged = GameObject.FindGameObjectWithTag("tagged");
 
-		Vector3 fToTDir = bestTar.transform.position - tagged.transform.position;
-		Vector3 toTDir = bestTar.transform.position - tagged.transform.position;
-
-		if (frozens.Length >0 && fToTDir.magnitude > 5 && toTDir.magnitude >30)
+		Vector3 fToTDir = new Vector3();
+		if(bestTar != null)
 		{
-			Vector3 vel = move.arriveKinematic(bestTar.transform.position, transform.position, vMax, rSat, t2t, false);
-			_velocity = vel.magnitude;
-
-			if (shortestDis <= 2)
-			{
-				_velocity = 0;
-				transform.GetChild(3).GetComponent<ParticleSystem>().startColor = new Color(0.0f, 1.0f, 0.0f);
-				if (Time.time - startUnfreeze >= unfreezeTime)
-				{
-					bestTar.tag = "untagged";
-					bestTar.transform.GetChild(3).GetComponent<ParticleSystem>().startColor = new Color(1.0f, 1.0f, 1.0f);
-				}
-			}
-			else
-			{
-				startUnfreeze = Time.time;
-				transform.GetChild(3).GetComponent<ParticleSystem>().startColor = new Color(1.0f, 1.0f, 1.0f);
-
-				Vector3 dir = bestTar.transform.position - transform.position; ;
-
-				float angle = Vector3.Angle(dir, transform.forward);
-				float spotAngle = line1.localEulerAngles.y;
-				Debug.Log(angle);
-				if (angle > spotAngle)
-				{
-					_velocity = 0;
-				}
-				else
-				{
-					_velocity = vel.magnitude;
-
-				}
-				transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(vel.normalized), rotationDegreesPerSecond * Time.deltaTime);
-			}
+			fToTDir = bestTar.transform.position - tagged.transform.position;
 		}
-		else
+		Vector3 toTDir = transform.position - tagged.transform.position;
+
+		//if (frozens.Length >0 && fToTDir.magnitude > 5 && toTDir.magnitude >30)
+		Debug.Log(frozens.Length);
+		if (bestTar == null||frozens.Length == 0 || fToTDir.magnitude < 5 || toTDir.magnitude < 30)
 		{
 
 			Vector3 vel = move.fleeKinematic(tagged.transform.position, transform.position, vMax);
@@ -615,8 +583,47 @@ public class Character : MonoBehaviour
 
 			}
 		}
+		else
+		{
 
-		
+			Vector3 vel = move.arriveKinematic(bestTar.transform.position, transform.position, vMax, rSat, t2t, false);
+			_velocity = vel.magnitude;
+
+			if (shortestDis <= 2)
+			{
+				_velocity = 0;
+				transform.GetChild(3).GetComponent<ParticleSystem>().startColor = new Color(0.0f, 1.0f, 0.0f);
+				if (Time.time - startUnfreeze >= unfreezeTime)
+				{
+					bestTar.tag = "untagged";
+					bestTar.transform.GetChild(3).GetComponent<ParticleSystem>().startColor = new Color(1.0f, 1.0f, 1.0f);
+				}
+			}
+			else
+			{
+				startUnfreeze = Time.time;
+				transform.GetChild(3).GetComponent<ParticleSystem>().startColor = new Color(1.0f, 1.0f, 1.0f);
+
+				Vector3 dir = bestTar.transform.position - transform.position; ;
+
+				float angle = Vector3.Angle(dir, transform.forward);
+				float spotAngle = line1.localEulerAngles.y;
+				//Debug.Log(angle);
+				if (angle > spotAngle)
+				{
+					_velocity = 0;
+				}
+				else
+				{
+					_velocity = vel.magnitude;
+
+				}
+				transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(vel.normalized), rotationDegreesPerSecond * Time.deltaTime);
+			}
+
+		}
+
+
 
 	}
 

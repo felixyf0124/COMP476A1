@@ -14,6 +14,8 @@ key maping
 left `shift` + `1` team B arrive
 left `shift` + `2` team B flee
 
+`TAB` toggle demo between R2 & R3
+
 
 
 
