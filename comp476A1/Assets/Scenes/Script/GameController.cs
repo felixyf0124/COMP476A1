@@ -27,11 +27,11 @@ public class GameController : MonoBehaviour
     List<GameObject> teamAList;
     List<GameObject> teamBList;
 
-
+    bool isTeamA;
     // Start is called before the first frame update
     void Start()
     {
-
+        isTeamA = true;
         teamAList = new List<GameObject>();
         teamBList = new List<GameObject>();
         const float edge = 50.0f;
@@ -91,5 +91,35 @@ public class GameController : MonoBehaviour
     void Update()
     {
         
+        if(Input.GetKey("1"))
+        {
+            if (isTeamA)
+            {
+                for (int i = 0; i < teamAList.Count; ++i)
+                {
+                    teamAList[i].GetComponent<Character>().moveType = 0;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < teamAList.Count; ++i)
+                {
+                    teamBList[i].GetComponent<Character>().moveType = 0;
+                }
+            }
+            
+
+        }
+
+        if (Input.GetKeyDown("Shift"))
+        {
+            isTeamA = false;
+        }
+
+        if (Input.GetKeyUp("Shift"))
+        {
+            isTeamA = true;
+        }
+
     }
 }
