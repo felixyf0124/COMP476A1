@@ -84,7 +84,7 @@ public class Character : MonoBehaviour
 
 		//adjust spot angle
 
-		float ratio = 1 - (_velocity) / (m_maxVelocity * 1.5f);
+		float ratio = 1 - (_velocity) / (vMax * 1.5f);
 		line1.localRotation = Quaternion.Euler(
 			new Vector3(
 				0.0f,
@@ -313,10 +313,47 @@ public class Character : MonoBehaviour
 			else // there is a target
 			{
 				//do pursue
-				vMax = m_maxVelocity * 1.2f;
+				vMax = m_maxVelocity * 1.5f;
 				Vector3 currentTarPos = pursued[0].transform.position;
-				Vector3 nextTarPos = pursued[0].transform.forward * vMax + currentTarPos;
+				Vector3 tarPos2 = new Vector3();
+
+				if (Mathf.Abs(currentTarPos.x) > 0.25 * movingAreaX)
+				{
+					if (transform.position.x > 0)
+					{
+						tarPos2.x += movingAreaX;
+					}
+					else
+					{
+						tarPos2.x -= movingAreaX;
+
+					}
+				}
+
+				if (Mathf.Abs(currentTarPos.z) > 0.25 * movingAreaX)
+				{
+					if (transform.position.z > 0)
+					{
+						tarPos2.z += movingAreaX;
+					}
+					else
+					{
+						tarPos2.z -= movingAreaX;
+
+					}
+				}
+
 				Vector3 cDir = currentTarPos - transform.position;
+				Vector3 cDir2 = tarPos2 - transform.position;
+
+				if(cDir.magnitude> cDir2.magnitude)
+				{
+					cDir = cDir2;
+					currentTarPos = tarPos2;
+				}
+
+
+				Vector3 nextTarPos = pursued[0].transform.forward * vMax + currentTarPos;
 				if (cDir.magnitude < 3)
 				{
 					pursued[0].tag = "frozen";
@@ -399,12 +436,49 @@ public class Character : MonoBehaviour
 
 	void pursuedAction()
 	{
-		vMax = m_maxVelocity * 1.2f;
+		vMax = m_maxVelocity * 1.0f;
 
 		GameObject tagged = GameObject.FindGameObjectWithTag("tagged");
 
 		Vector3 tarPos = tagged.transform.position;
+
+		Vector3 tarPos2 = new Vector3();
+
+		if (Mathf.Abs(tarPos.x) > 0.25 * movingAreaX)
+		{
+			if (transform.position.x > 0)
+			{
+				tarPos2.x += movingAreaX;
+			}
+			else
+			{
+				tarPos2.x -= movingAreaX;
+
+			}
+		}
+
+		if (Mathf.Abs(tarPos.z) > 0.25 * movingAreaX)
+		{
+			if (transform.position.z > 0)
+			{
+				tarPos2.z += movingAreaX;
+			}
+			else
+			{
+				tarPos2.z -= movingAreaX;
+
+			}
+		}
+
+
 		Vector3 cDir = tarPos - transform.position;
+		Vector3 cDir2 = tarPos2 - transform.position;
+		if (cDir.magnitude > cDir2.magnitude)
+		{
+			cDir = cDir2;
+		}
+
+
 
 		Vector3 vel = move.fleeKinematic(tagged.transform.position, transform.position, vMax);
 		_velocity = vel.magnitude;
@@ -441,6 +515,7 @@ public class Character : MonoBehaviour
 
 	void untaggedAction()
 	{
+		vMax = m_maxVelocity * 0.9f;
 
 		GameObject[] frozens = GameObject.FindGameObjectsWithTag("frozen");
 
@@ -473,8 +548,9 @@ public class Character : MonoBehaviour
 		GameObject tagged = GameObject.FindGameObjectWithTag("tagged");
 
 		Vector3 fToTDir = bestTar.transform.position - tagged.transform.position;
+		Vector3 toTDir = bestTar.transform.position - tagged.transform.position;
 
-		if(fToTDir.magnitude > 0.5)
+		if (frozens.Length >0 && fToTDir.magnitude > 5 && toTDir.magnitude >30)
 		{
 			Vector3 vel = move.arriveKinematic(bestTar.transform.position, transform.position, vMax, rSat, t2t, false);
 			_velocity = vel.magnitude;
@@ -513,10 +589,9 @@ public class Character : MonoBehaviour
 		}
 		else
 		{
-			Vector3 toTDir = bestTar.transform.position - tagged.transform.position;
 
 			Vector3 vel = move.fleeKinematic(tagged.transform.position, transform.position, vMax);
-			_velocity = vel.magnitude;
+			_velocity = vel.magnitude * (1- toTDir.magnitude/50);
 
 			if (toTDir.magnitude < rSat)
 			{

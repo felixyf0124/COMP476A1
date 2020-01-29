@@ -10,6 +10,7 @@ TagManager:
   - tagged
   - frozen
   - pursued
+  - untagged
   layers:
   - Default
   - TransparentFX
