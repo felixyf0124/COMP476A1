@@ -124,7 +124,10 @@ public class Character : MonoBehaviour
 
 		// TODO: Translate the game object in world space
 		transform.position += transform.forward * Time.deltaTime * _velocity;
-		dd.text = transform.position.x + "|" + transform.position.y;
+		//dd.text = transform.position.x + "|" + transform.position.y;
+		Vector2 test = new Vector2(1, 1);
+		//test.Normalize();
+
 
 		//overlap mod
 		float modx, modz;
