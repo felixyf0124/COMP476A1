@@ -6,6 +6,10 @@ TagManager:
   tags:
   - A
   - B
+  - LastFrozen
+  - tagged
+  - frozen
+  - pursued
   layers:
   - Default
   - TransparentFX

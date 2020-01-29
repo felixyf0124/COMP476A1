@@ -25,6 +25,8 @@ public class Character : MonoBehaviour
 
 	public float m_spotAngle;
 
+	public float vMax;
+
 	//rotation speed
 	public float rotationDegreesPerSecond = 360;
 
@@ -46,127 +48,38 @@ public class Character : MonoBehaviour
 
 	MoveStrategy move;
 
+	float unfreezeTime;
+
+	float startUnfreeze;
+
 	void Start()
 	{
 		//cache the animator
-		_animator = GetComponent<Animator>();
+		//_animator = GetComponent<Animator>();
 
 		moveType = 0;
 
 		move = new MoveStrategy();
+
+		vMax = m_maxVelocity;
+
+		unfreezeTime = 5.0f;
+
 	}
 
 	void Update()
 	{
-		GameObject[] enemy;
-
-		if (this.tag == "A")
+		if (GameController.isTagGame)
 		{
-			enemy = GameObject.FindGameObjectsWithTag("B");
-
+			//R3
+			gameOfFreeTag();
 		}
 		else
 		{
-			enemy = GameObject.FindGameObjectsWithTag("A");
-
+			//R2
+			humanCharacterBehaviour();
 		}
-
-
-		GameObject tar = null;
-		float shortestDis = 0;
-
-		//dd.text = dd.text + "\n" + enemy.Length;
-
-		for (int i = 0; i < enemy.Length; ++i)
-		{
-			if (i == 0)
-			{
-				Vector3 dir = enemy[i].transform.position - transform.position;
-				float dis = dir.magnitude;
-				shortestDis = dis;
-				tar = enemy[i];
-			}
-			else
-			{
-				Vector3 dir = enemy[i].transform.position - transform.position;
-				float dis = dir.magnitude;
-				if (dis < shortestDis + 3)
-				{
-					shortestDis = dis;
-					tar = enemy[i];
-				}
-			}
-
-		}
-
-		switch (moveType)
-		{
-
-			case 1: // kinematic flee C
-				{
-					Vector3 vel = move.fleeKinematic(tar.transform.position, transform.position, m_maxVelocity);
-					_velocity = vel.magnitude;
-
-					if (shortestDis < rSat)
-					{	
-						if(vel.magnitude != 0)
-						{
-							transform.position = transform.position + vel.normalized * rSat;
-
-						}
-						else
-						{
-							transform.position = transform.position + transform.forward * rSat;
-						}
-
-					}
-					else
-					{
-						if(transform.forward != vel.normalized)
-						{
-							transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(vel.normalized), rotationDegreesPerSecond * Time.deltaTime);
-						}
-
-					}
-					//transform.position = tar.transform.position;
-					break;
-				}
-
-			case 0:// kinematic arrive A 
-				{
-					
-					Vector3 vel = move.arriveKinematic(tar.transform.position, transform.position, m_maxVelocity, rSat, t2t, false);
-					_velocity = vel.magnitude;
-
-					if (_velocity < 0.03 && shortestDis <= rSat)
-					{
-						_velocity = 0;
-						transform.position = tar.transform.position;
-						//Debug.Log("called");
-					}
-					else
-					{
-						Vector3 dir = tar.transform.position - transform.position; ;
-
-						float angle = Vector3.Angle(dir,transform.forward);
-						float spotAngle = line1.localEulerAngles.y;
-						Debug.Log(angle);
-						if(angle> spotAngle)
-						{
-							_velocity = 0;
-						}
-						else
-						{
-							_velocity = vel.magnitude;
-
-						}
-						transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(vel.normalized), rotationDegreesPerSecond * Time.deltaTime);
-					}
-
-
-					break;
-				}
-		}
+		
 
 
 		//adjust spot angle
@@ -184,56 +97,9 @@ public class Character : MonoBehaviour
 				0.0f));
 
 
-		//// Obtain input information (See "Horizontal" and "Vertical" in the Input Manager)
-		//float horizontal = Input.GetAxis("Horizontal");
-		//float vertical = Input.GetAxis("Vertical");
-
-		////cache the input
-		//_input.x = horizontal;
-		//_input.y = vertical;
-
-		////calculate input magnitude (you may use this to assign the blend parameter in your movement
-		//// blend tree directly, the acceleration system in this example is given to showcase its
-		//// potential effect on a PC without a controller)
-		//float inputMag = _input.magnitude;
-
-
-		//// Check for inputs
-		//if (!Mathf.Approximately(vertical, 0.0f) || !Mathf.Approximately(horizontal, 0.0f))
-		//{
-		//	Vector3 direction = new Vector3(horizontal, 0.0f, vertical);
-		//	direction = Vector3.ClampMagnitude(direction, 1.0f);
-
-		//	// increment velocity
-		//	if (_velocity < m_maxVelocity)
-		//	{
-		//		_velocity += m_acceleration * Time.deltaTime;
-		//		if (_velocity > m_maxVelocity)
-		//			_velocity = m_maxVelocity;
-		//	}
-
-		//	// look towards the input direction
-		//	transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(direction), rotationDegreesPerSecond * Time.deltaTime);
-
-
-		//}
-		//else if (_velocity > 0)
-		//{
-
-		//	//decrement velocity if there is no input
-		//	_velocity -= m_acceleration * m_deccelerationMultiplier * Time.deltaTime;
-		//	if (_velocity < 0)
-		//		_velocity = 0;
-		//}
-
-
-
 
 		// TODO: Translate the game object in world space
 		transform.position += transform.forward * Time.deltaTime * _velocity;
-		//dd.text = transform.position.x + "|" + transform.position.y;
-		Vector2 test = new Vector2(1, 1);
-		//test.Normalize();
 
 
 		//overlap mod
@@ -267,4 +133,416 @@ public class Character : MonoBehaviour
 		_animator.SetFloat("Blend", _velocity / m_maxVelocity);
 
 	}
+
+	void humanCharacterBehaviour()
+	{
+		vMax = m_maxVelocity;
+
+		GameObject[] enemy;
+
+		if (this.tag == "A")
+		{
+			enemy = GameObject.FindGameObjectsWithTag("B");
+
+		}
+		else
+		{
+			enemy = GameObject.FindGameObjectsWithTag("A");
+
+		}
+
+
+		GameObject tar = null;
+		float shortestDis = 0;
+
+		for (int i = 0; i < enemy.Length; ++i)
+		{
+			if (i == 0)
+			{
+				Vector3 dir = enemy[i].transform.position - transform.position;
+				float dis = dir.magnitude;
+				shortestDis = dis;
+				tar = enemy[i];
+			}
+			else
+			{
+				Vector3 dir = enemy[i].transform.position - transform.position;
+				float dis = dir.magnitude;
+				if (dis < shortestDis + 3)
+				{
+					shortestDis = dis;
+					tar = enemy[i];
+				}
+			}
+
+		}
+
+		switch (moveType)
+		{
+
+			case 1: // kinematic flee C
+				{
+					Vector3 vel = move.fleeKinematic(tar.transform.position, transform.position, vMax);
+					_velocity = vel.magnitude;
+
+					if (shortestDis < rSat)
+					{
+						if (vel.magnitude != 0)
+						{
+							transform.position = transform.position + vel.normalized * rSat;
+
+						}
+						else
+						{
+							transform.position = transform.position + transform.forward * rSat;
+						}
+
+					}
+					else
+					{
+						if (transform.forward != vel.normalized)
+						{
+							transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(vel.normalized), rotationDegreesPerSecond * Time.deltaTime);
+						}
+
+					}
+					//transform.position = tar.transform.position;
+					break;
+				}
+
+			case 0:// kinematic arrive A 
+				{
+
+					Vector3 vel = move.arriveKinematic(tar.transform.position, transform.position, vMax, rSat, t2t, false);
+					_velocity = vel.magnitude;
+
+					if (_velocity < 0.03 && shortestDis <= rSat)
+					{
+						_velocity = 0;
+						transform.position = tar.transform.position;
+						//Debug.Log("called");
+					}
+					else
+					{
+						Vector3 dir = tar.transform.position - transform.position; ;
+
+						float angle = Vector3.Angle(dir, transform.forward);
+						float spotAngle = line1.localEulerAngles.y;
+						Debug.Log(angle);
+						if (angle > spotAngle)
+						{
+							_velocity = 0;
+						}
+						else
+						{
+							_velocity = vel.magnitude;
+
+						}
+						transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(vel.normalized), rotationDegreesPerSecond * Time.deltaTime);
+					}
+
+
+					break;
+				}
+		}
+
+	}
+
+	void gameOfFreeTag()
+	{
+		vMax = m_maxVelocity;
+
+		if (tag == "tagged")
+		{
+			taggedAction();
+		}
+		else if (tag == "pursued")
+		{
+			pursuedAction();
+		}
+		else if (tag == "frozen")
+		{
+			frozenAction();
+		}
+		else if (tag == "untagged")
+		{
+			untaggedAction();
+		}
+
+	}
+
+	void taggedAction()
+	{
+		GameObject[] untagged = GameObject.FindGameObjectsWithTag("untagged");
+		GameObject[] pursued = GameObject.FindGameObjectsWithTag("pursued");
+
+		if (untagged.Length != 0 ||pursued.Length!=0)
+		{
+			//no target
+			if (pursued.Length == 0)
+			{
+				GameObject bestTar = null;
+
+				float shortestDis = 0;
+
+
+				for (int i = 0; i < untagged.Length; ++i)
+				{
+					if (i == 0)
+					{
+						Vector3 dir = untagged[i].transform.position - transform.position;
+						float dis = dir.magnitude;
+						shortestDis = dis;
+						bestTar = untagged[i];
+					}
+					else
+					{
+						Vector3 dir = untagged[i].transform.position - transform.position;
+						float dis = dir.magnitude;
+						if (dis < shortestDis)
+						{
+							shortestDis = dis;
+							bestTar = untagged[i];
+						}
+					}
+				}
+
+				bestTar.tag = "pursued";
+				bestTar.transform.GetChild(3).GetComponent<ParticleSystem>().startColor = new Color(1.0f, 1.0f, 0.0f);
+			}
+			else // there is a target
+			{
+				//do pursue
+				vMax = m_maxVelocity * 1.2f;
+				Vector3 currentTarPos = pursued[0].transform.position;
+				Vector3 nextTarPos = pursued[0].transform.forward * vMax + currentTarPos;
+				Vector3 cDir = currentTarPos - transform.position;
+				if (cDir.magnitude < 3)
+				{
+					pursued[0].tag = "frozen";
+					pursued[0].transform.GetChild(3).GetComponent<ParticleSystem>().startColor = new Color(0.0f, 0.0f, 1.0f);
+
+					_velocity = 0;
+					LastFrozen.lastFrozenList.Add(pursued[0]);
+				}
+				else
+				{
+					Vector3 vel = move.seekKinematic(nextTarPos, transform.position, vMax);
+					_velocity = vel.magnitude;
+					if (vel.magnitude != 0)
+					{
+						transform.forward = vel.normalized;
+					}
+				}
+
+			}
+		}
+		else
+		{//game over & reset
+			LastFrozen.lastFrozenList[LastFrozen.lastFrozenList.Count - 1].transform.GetChild(3).GetComponent<ParticleSystem>().startColor = new Color(1.0f, 0.0f, 0.0f);
+
+			float edge = 40;
+			Vector3 initPos = new Vector3(
+				Random.Range(0.7f * -edge, 0.7f * edge),
+				0.0f,
+				Random.Range(0.7f * -edge, 0.7f * edge));
+			Quaternion initRota = Quaternion.Euler(new Vector3(
+				0.0f,
+				Random.Range(0.0f, 360.0f),
+				0.0f
+				));
+			LastFrozen.lastFrozenList[LastFrozen.lastFrozenList.Count - 1].transform.position = initPos;
+			LastFrozen.lastFrozenList[LastFrozen.lastFrozenList.Count - 1].transform.rotation = initRota;
+			LastFrozen.lastFrozenList[LastFrozen.lastFrozenList.Count - 1].tag = "tagged";
+
+
+			tag = "untagged";
+			transform.GetChild(3).GetComponent<ParticleSystem>().startColor = new Color(1.0f, 1.0f, 1.0f);
+
+			initPos = new Vector3(
+			Random.Range(0.7f * -edge, 0.7f * edge),
+			0.0f,
+			Random.Range(0.7f * -edge, 0.7f * edge));
+			initRota = Quaternion.Euler(new Vector3(
+				0.0f,
+				Random.Range(0.0f, 360.0f),
+				0.0f
+				));
+
+			transform.position = initPos;
+			transform.rotation = initRota;
+			_velocity = 0;
+
+			GameObject[] frozen = GameObject.FindGameObjectsWithTag("frozen");
+			for (int i = 0; i < frozen.Length; ++i)
+			{
+				frozen[i].tag = "untagged";
+				frozen[i].transform.GetChild(3).GetComponent<ParticleSystem>().startColor = new Color(1.0f, 1.0f, 1.0f);
+
+				initPos = new Vector3(
+				Random.Range(0.7f * -edge, 0.7f * edge),
+				0.0f,
+				Random.Range(0.7f * -edge, 0.7f * edge));
+				initRota = Quaternion.Euler(new Vector3(
+					0.0f,
+					Random.Range(0.0f, 360.0f),
+					0.0f
+					));
+
+				frozen[i].transform.position = initPos;
+				frozen[i].transform.rotation = initRota;
+
+			}
+
+		}
+	}
+
+	void pursuedAction()
+	{
+		vMax = m_maxVelocity * 1.2f;
+
+		GameObject tagged = GameObject.FindGameObjectWithTag("tagged");
+
+		Vector3 tarPos = tagged.transform.position;
+		Vector3 cDir = tarPos - transform.position;
+
+		Vector3 vel = move.fleeKinematic(tagged.transform.position, transform.position, vMax);
+		_velocity = vel.magnitude;
+
+		if (cDir.magnitude < rSat)
+		{
+			if (vel.magnitude != 0)
+			{
+				transform.position = transform.position + vel.normalized * rSat;
+
+			}
+			else
+			{
+				transform.position = transform.position + transform.forward * rSat;
+			}
+
+		}
+		else
+		{
+			if (transform.forward != vel.normalized)
+			{
+				transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(vel.normalized), rotationDegreesPerSecond * Time.deltaTime);
+			}
+
+		}
+
+
+	}
+
+	void frozenAction()
+	{
+		_velocity = 0;
+	}
+
+	void untaggedAction()
+	{
+
+		GameObject[] frozens = GameObject.FindGameObjectsWithTag("frozen");
+
+		GameObject bestTar = null;
+
+		float shortestDis = 0;
+
+
+		for (int i = 0; i < frozens.Length; ++i)
+		{
+			if (i == 0)
+			{
+				Vector3 dir = frozens[i].transform.position - transform.position;
+				float dis = dir.magnitude;
+				shortestDis = dis;
+				bestTar = frozens[i];
+			}
+			else
+			{
+				Vector3 dir = frozens[i].transform.position - transform.position;
+				float dis = dir.magnitude;
+				if (dis < shortestDis)
+				{
+					shortestDis = dis;
+					bestTar = frozens[i];
+				}
+			}
+		}
+
+		GameObject tagged = GameObject.FindGameObjectWithTag("tagged");
+
+		Vector3 fToTDir = bestTar.transform.position - tagged.transform.position;
+
+		if(fToTDir.magnitude > 0.5)
+		{
+			Vector3 vel = move.arriveKinematic(bestTar.transform.position, transform.position, vMax, rSat, t2t, false);
+			_velocity = vel.magnitude;
+
+			if (shortestDis <= 2)
+			{
+				_velocity = 0;
+				transform.GetChild(3).GetComponent<ParticleSystem>().startColor = new Color(0.0f, 1.0f, 0.0f);
+				if (Time.time - startUnfreeze >= unfreezeTime)
+				{
+					bestTar.tag = "untagged";
+					bestTar.transform.GetChild(3).GetComponent<ParticleSystem>().startColor = new Color(1.0f, 1.0f, 1.0f);
+				}
+			}
+			else
+			{
+				startUnfreeze = Time.time;
+				transform.GetChild(3).GetComponent<ParticleSystem>().startColor = new Color(1.0f, 1.0f, 1.0f);
+
+				Vector3 dir = bestTar.transform.position - transform.position; ;
+
+				float angle = Vector3.Angle(dir, transform.forward);
+				float spotAngle = line1.localEulerAngles.y;
+				Debug.Log(angle);
+				if (angle > spotAngle)
+				{
+					_velocity = 0;
+				}
+				else
+				{
+					_velocity = vel.magnitude;
+
+				}
+				transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(vel.normalized), rotationDegreesPerSecond * Time.deltaTime);
+			}
+		}
+		else
+		{
+			Vector3 toTDir = bestTar.transform.position - tagged.transform.position;
+
+			Vector3 vel = move.fleeKinematic(tagged.transform.position, transform.position, vMax);
+			_velocity = vel.magnitude;
+
+			if (toTDir.magnitude < rSat)
+			{
+				if (vel.magnitude != 0)
+				{
+					transform.position = transform.position + vel.normalized * rSat;
+
+				}
+				else
+				{
+					transform.position = transform.position + transform.forward * rSat;
+				}
+
+			}
+			else
+			{
+				if (transform.forward != vel.normalized)
+				{
+					transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(vel.normalized), rotationDegreesPerSecond * Time.deltaTime);
+				}
+
+			}
+		}
+
+		
+
+	}
+
 }

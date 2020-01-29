@@ -66,6 +66,7 @@
     <Compile Include="Assets\Scenes\Script\Character.cs" />
     <Compile Include="Assets\Scenes\Script\Debugger.cs" />
     <Compile Include="Assets\Scenes\Script\GameController.cs" />
+    <Compile Include="Assets\Scenes\Script\LastFrozen.cs" />
     <Compile Include="Assets\Scenes\Script\MoveStrategy.cs" />
     <Compile Include="Assets\Scenes\Script\NewBehaviourScript.cs" />
     <Reference Include="Unity.Timeline.Editor">
