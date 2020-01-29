@@ -22,7 +22,6 @@ public class GameController : MonoBehaviour
 
     public float deccelerationMultiplyer;
 
-
     public float rSat;
 
     List<GameObject> teamAList;
@@ -54,6 +53,8 @@ public class GameController : MonoBehaviour
             teamAChar.GetComponent<Character>().m_maxVelocity = maxVelocity;
             teamAChar.GetComponent<Character>().m_acceleration = acceleration;
             teamAChar.GetComponent<Character>().m_deccelerationMultiplier = deccelerationMultiplyer;
+            teamAChar.GetComponent<Character>().rSatisfaction = rSat;
+            teamAChar.GetComponent<Character>().moveType = teamABehaviourType;
             teamAChar.transform.GetChild(3).GetComponent<ParticleSystem>().startColor = new Color(1.0f,0.0f,0.0f);
             teamAChar.tag = "A";
             teamAList.Add(teamAChar);
@@ -75,6 +76,8 @@ public class GameController : MonoBehaviour
             teamBChar.GetComponent<Character>().m_maxVelocity = maxVelocity;
             teamBChar.GetComponent<Character>().m_acceleration = acceleration;
             teamBChar.GetComponent<Character>().m_deccelerationMultiplier = deccelerationMultiplyer;
+            teamBChar.GetComponent<Character>().rSatisfaction = rSat;
+            teamBChar.GetComponent<Character>().moveType = teamBBehaviourType;
             teamBChar.transform.GetChild(3).GetComponent<ParticleSystem>().startColor = new Color(0.0f, 0.0f, 0.9f);
             teamBChar.tag = "B";
             //teamBChar

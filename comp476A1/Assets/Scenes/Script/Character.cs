@@ -19,6 +19,7 @@ public class Character : MonoBehaviour
 	//deccelaration speed with respect to acceleration speed
 	public float m_deccelerationMultiplier;
 
+	public float rSatisfaction;
 
 	public float m_spotAngle;
 
@@ -35,14 +36,10 @@ public class Character : MonoBehaviour
 
 	public Transform line2;
 
-	int moveType;
-
-	//debuger
-	public Text dd;
-
-	Rigidbody rigidbody;
+	public int moveType;
 
 	public float movingAreaX;
+
 	public float movingAreaZ;
 
 	MoveStrategy move;
@@ -52,14 +49,9 @@ public class Character : MonoBehaviour
 		//cache the animator
 		_animator = GetComponent<Animator>();
 
-		//line1.rotation = Quaternion.Euler(new Vector3(0.0f, m_spotAngle / 2.0f , 0.0f));
-		//line2.rotation = Quaternion.Euler(new Vector3(0.0f, -m_spotAngle / 2.0f, 0.0f));
-
 		moveType = 0;
 
-		rigidbody = GetComponent<Rigidbody>();
-
-		
+		move = new MoveStrategy();
 	}
 
 	void Update()
@@ -77,47 +69,95 @@ public class Character : MonoBehaviour
 
 		}
 
-		// Obtain input information (See "Horizontal" and "Vertical" in the Input Manager)
-		float horizontal = Input.GetAxis("Horizontal");
-		float vertical = Input.GetAxis("Vertical");
+		//dd.text = dd.text + "\n" + "called";
 
-		//cache the input
-		_input.x = horizontal;
-		_input.y = vertical;
-
-		//calculate input magnitude (you may use this to assign the blend parameter in your movement
-		// blend tree directly, the acceleration system in this example is given to showcase its
-		// potential effect on a PC without a controller)
-		float inputMag = _input.magnitude;
-
-
-		// Check for inputs
-		if (!Mathf.Approximately(vertical, 0.0f) || !Mathf.Approximately(horizontal, 0.0f))
+		switch (moveType)
 		{
-			Vector3 direction = new Vector3(horizontal, 0.0f, vertical);
-			direction = Vector3.ClampMagnitude(direction, 1.0f);
+			case 0:// kinematic arrive
+				{
+					GameObject tar = null;
+					float shortest = 0;
 
-			// increment velocity
-			if (_velocity < m_maxVelocity)
-			{
-				_velocity += m_acceleration * Time.deltaTime;
-				if (_velocity > m_maxVelocity)
-					_velocity = m_maxVelocity;
-			}
+					Debug.Log(enemy.Length.ToString());
+					//dd.text = dd.text + "\n" + enemy.Length;
 
-			// look towards the input direction
-			transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(direction), rotationDegreesPerSecond * Time.deltaTime);
+					for (int i = 0; i < enemy.Length; ++i)
+					{
+						if(i == 0)
+						{
+							Vector3 dir = enemy[i].transform.position - transform.position;
+							float dis = dir.magnitude;
+							shortest = dis;
+							tar = enemy[i];
+						}
+						else
+						{
+							Vector3 dir = enemy[i].transform.position - transform.position;
+							float dis = dir.magnitude;
+							if(dis < shortest)
+							{
+								shortest = dis;
+								tar = enemy[i];
+							}
+						}
+						
+					}
+					Vector3 vel = move.arriveKinematic(tar.transform.position, transform.position, m_maxVelocity, rSatisfaction);
+					_velocity = vel.magnitude;
+					if(_velocity != 0)
+					{
+						transform.forward = vel.normalized;
+					}
 
-
+					break;
+				}
 		}
-		else if (_velocity > 0)
-		{
 
-			//decrement velocity if there is no input
-			_velocity -= m_acceleration * m_deccelerationMultiplier * Time.deltaTime;
-			if (_velocity < 0)
-				_velocity = 0;
-		}
+
+
+
+
+		//// Obtain input information (See "Horizontal" and "Vertical" in the Input Manager)
+		//float horizontal = Input.GetAxis("Horizontal");
+		//float vertical = Input.GetAxis("Vertical");
+
+		////cache the input
+		//_input.x = horizontal;
+		//_input.y = vertical;
+
+		////calculate input magnitude (you may use this to assign the blend parameter in your movement
+		//// blend tree directly, the acceleration system in this example is given to showcase its
+		//// potential effect on a PC without a controller)
+		//float inputMag = _input.magnitude;
+
+
+		//// Check for inputs
+		//if (!Mathf.Approximately(vertical, 0.0f) || !Mathf.Approximately(horizontal, 0.0f))
+		//{
+		//	Vector3 direction = new Vector3(horizontal, 0.0f, vertical);
+		//	direction = Vector3.ClampMagnitude(direction, 1.0f);
+
+		//	// increment velocity
+		//	if (_velocity < m_maxVelocity)
+		//	{
+		//		_velocity += m_acceleration * Time.deltaTime;
+		//		if (_velocity > m_maxVelocity)
+		//			_velocity = m_maxVelocity;
+		//	}
+
+		//	// look towards the input direction
+		//	transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(direction), rotationDegreesPerSecond * Time.deltaTime);
+
+
+		//}
+		//else if (_velocity > 0)
+		//{
+
+		//	//decrement velocity if there is no input
+		//	_velocity -= m_acceleration * m_deccelerationMultiplier * Time.deltaTime;
+		//	if (_velocity < 0)
+		//		_velocity = 0;
+		//}
 
 
 

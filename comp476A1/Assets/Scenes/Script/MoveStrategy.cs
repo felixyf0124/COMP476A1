@@ -7,19 +7,16 @@ public class MoveStrategy : MonoBehaviour
     /**
      * return velocity
      */
-    public Vector3 seekKinematic(Vector3 positionTarget, Vector3 positionCurrent, Vector3 velocityMax)
+    public Vector3 seekKinematic(Vector3 positionTarget, Vector3 positionCurrent, float velocityMax)
     {
 
         Vector2 pTar = new Vector2(positionTarget.x, positionTarget.z);
 
         Vector2 pCur = new Vector2(positionCurrent.x, positionCurrent.z);
 
-        Vector2 vMax = new Vector2(velocityMax.x, velocityMax.z);
+        float vMax = velocityMax;
 
         Vector2 vDir = pTar - pCur;
-
-        //Normalnize
-        vDir.Normalize();
 
         Vector2 ksVelocity = vMax * vDir;
 
@@ -27,13 +24,16 @@ public class MoveStrategy : MonoBehaviour
     }
 
 
-    public Vector3 arriveKinematic(Vector3 positionTarget, Vector3 positionCurrent, Vector3 velocityMax, float rSat)
+    /**
+     * return velocity
+     */
+    public Vector3 arriveKinematic(Vector3 positionTarget, Vector3 positionCurrent, float velocityMax, float rSat)
     {
         Vector2 pTar = new Vector2(positionTarget.x, positionTarget.z);
 
         Vector2 pCur = new Vector2(positionCurrent.x, positionCurrent.z);
 
-        Vector2 vMax = new Vector2(velocityMax.x, velocityMax.z);
+        float vMax = velocityMax;
 
         Vector2 vDir = pTar - pCur;
 
@@ -41,18 +41,18 @@ public class MoveStrategy : MonoBehaviour
 
         if (vDir.magnitude > rSat)
         {
-            vDir.Normalize();
-
-            ksVelocity = vMax * vDir;
+            ksVelocity = vMax * vDir.normalized;
         }
 
         return (new Vector3(ksVelocity.x, positionCurrent.y, ksVelocity.y));
 
     }
 
-
-    public Vector3 fleeKinematic(Vector3 pTar, Vector3 pCur, Vector3 vMax)
+    /**
+     * return velocity
+     */
+    public Vector3 fleeKinematic(Vector3 pTar, Vector3 pCur, float velocityMax)
     {
-        return -seekKinematic(pTar, pCur, vMax);
+        return -seekKinematic(pTar, pCur, velocityMax);
     }
 }
