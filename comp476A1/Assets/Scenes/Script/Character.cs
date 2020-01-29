@@ -75,7 +75,6 @@ public class Character : MonoBehaviour
 		GameObject tar = null;
 		float shortestDis = 0;
 
-
 		//dd.text = dd.text + "\n" + enemy.Length;
 
 		for (int i = 0; i < enemy.Length; ++i)
@@ -143,10 +142,24 @@ public class Character : MonoBehaviour
 					{
 						_velocity = 0;
 						transform.position = tar.transform.position;
-						Debug.Log("called");
+						//Debug.Log("called");
 					}
 					else
 					{
+						Vector3 dir = tar.transform.position - transform.position; ;
+
+						float angle = Vector3.Angle(dir,transform.forward);
+						float spotAngle = line1.localEulerAngles.y;
+						Debug.Log(angle);
+						if(angle> spotAngle)
+						{
+							_velocity = 0;
+						}
+						else
+						{
+							_velocity = vel.magnitude;
+
+						}
 						transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(vel.normalized), rotationDegreesPerSecond * Time.deltaTime);
 					}
 
@@ -156,7 +169,19 @@ public class Character : MonoBehaviour
 		}
 
 
+		//adjust spot angle
 
+		float ratio = 1 - (_velocity) / (m_maxVelocity * 1.5f);
+		line1.localRotation = Quaternion.Euler(
+			new Vector3(
+				0.0f,
+				m_spotAngle * (ratio) / 2.0f,
+				0.0f));
+		line2.localRotation = Quaternion.Euler(
+			new Vector3(
+				0.0f,
+				-m_spotAngle * (ratio) / 2.0f,
+				0.0f));
 
 
 		//// Obtain input information (See "Horizontal" and "Vertical" in the Input Manager)
@@ -235,19 +260,7 @@ public class Character : MonoBehaviour
 		transform.position = new Vector3(modx, transform.position.y, modz);
 
 
-		//adjust spot angle
-
-		float ratio = 1 - (_velocity) / (m_maxVelocity * 1.5f);
-		line1.localRotation = Quaternion.Euler(
-			new Vector3(
-				0.0f,
-				m_spotAngle * (ratio) / 2.0f, 
-				0.0f));
-		line2.localRotation = Quaternion.Euler(
-			new Vector3(
-				0.0f,
-				- m_spotAngle * (ratio) / 2.0f, 
-				0.0f));
+		
 
 
 		// set the blend parameter in your animator's movement blend tree
