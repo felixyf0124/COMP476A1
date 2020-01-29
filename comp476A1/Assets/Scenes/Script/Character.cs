@@ -19,7 +19,9 @@ public class Character : MonoBehaviour
 	//deccelaration speed with respect to acceleration speed
 	public float m_deccelerationMultiplier;
 
-	public float rSatisfaction;
+	public float rSat;
+
+	public float t2t;
 
 	public float m_spotAngle;
 
@@ -69,45 +71,85 @@ public class Character : MonoBehaviour
 
 		}
 
-		//dd.text = dd.text + "\n" + "called";
+
+		GameObject tar = null;
+		float shortestDis = 0;
+
+
+		//dd.text = dd.text + "\n" + enemy.Length;
+
+		for (int i = 0; i < enemy.Length; ++i)
+		{
+			if (i == 0)
+			{
+				Vector3 dir = enemy[i].transform.position - transform.position;
+				float dis = dir.magnitude;
+				shortestDis = dis;
+				tar = enemy[i];
+			}
+			else
+			{
+				Vector3 dir = enemy[i].transform.position - transform.position;
+				float dis = dir.magnitude;
+				if (dis < shortestDis + 3)
+				{
+					shortestDis = dis;
+					tar = enemy[i];
+				}
+			}
+
+		}
 
 		switch (moveType)
 		{
-			case 0:// kinematic arrive
+
+			case 1: // kinematic flee C
 				{
-					GameObject tar = null;
-					float shortest = 0;
+					Vector3 vel = move.fleeKinematic(tar.transform.position, transform.position, m_maxVelocity);
+					_velocity = vel.magnitude;
 
-					Debug.Log(enemy.Length.ToString());
-					//dd.text = dd.text + "\n" + enemy.Length;
-
-					for (int i = 0; i < enemy.Length; ++i)
-					{
-						if(i == 0)
+					if (shortestDis < rSat)
+					{	
+						if(vel.magnitude != 0)
 						{
-							Vector3 dir = enemy[i].transform.position - transform.position;
-							float dis = dir.magnitude;
-							shortest = dis;
-							tar = enemy[i];
+							transform.position = transform.position + vel.normalized * rSat;
+
 						}
 						else
 						{
-							Vector3 dir = enemy[i].transform.position - transform.position;
-							float dis = dir.magnitude;
-							if(dis < shortest)
-							{
-								shortest = dis;
-								tar = enemy[i];
-							}
+							transform.position = transform.position + transform.forward * rSat;
 						}
-						
+
 					}
-					Vector3 vel = move.arriveKinematic(tar.transform.position, transform.position, m_maxVelocity, rSatisfaction);
-					_velocity = vel.magnitude;
-					if(_velocity != 0)
+					else
 					{
-						transform.forward = vel.normalized;
+						if(transform.forward != vel.normalized)
+						{
+							transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(vel.normalized), rotationDegreesPerSecond * Time.deltaTime);
+						}
+
 					}
+					//transform.position = tar.transform.position;
+					break;
+				}
+
+			case 0:// kinematic arrive A 
+				{
+					
+					Vector3 vel = move.arriveKinematic(tar.transform.position, transform.position, m_maxVelocity, rSat, t2t, false);
+					_velocity = vel.magnitude;
+
+					if (_velocity < 0.03 && shortestDis <= rSat)
+					{
+						_velocity = 0;
+						transform.position = tar.transform.position;
+						Debug.Log("called");
+					}
+					else
+					{
+						transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(vel.normalized), rotationDegreesPerSecond * Time.deltaTime);
+					}
+
 
 					break;
 				}

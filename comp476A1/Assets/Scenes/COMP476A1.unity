@@ -617,8 +617,8 @@ MonoBehaviour:
   maxVelocity: 10
   acceleration: 10
   deccelerationMultiplyer: 15
-  rSat: 1
-  dd: {fileID: 119976197509494831, guid: 4b77803bda192e14f8ab80543bae2028, type: 3}
+  rSat: 0.2
+  t2t: 1
 --- !u!1 &1571307024
 GameObject:
   m_ObjectHideFlags: 0

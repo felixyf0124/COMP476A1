@@ -18,7 +18,7 @@ public class MoveStrategy : MonoBehaviour
 
         Vector2 vDir = pTar - pCur;
 
-        Vector2 ksVelocity = vMax * vDir;
+        Vector2 ksVelocity = vMax * vDir.normalized;
 
         return (new Vector3(ksVelocity.x, positionCurrent.y, ksVelocity.y));
     }
@@ -27,7 +27,7 @@ public class MoveStrategy : MonoBehaviour
     /**
      * return velocity
      */
-    public Vector3 arriveKinematic(Vector3 positionTarget, Vector3 positionCurrent, float velocityMax, float rSat)
+    public Vector3 arriveKinematic(Vector3 positionTarget, Vector3 positionCurrent, float velocityMax, float rSat, float t2t, bool isI)
     {
         Vector2 pTar = new Vector2(positionTarget.x, positionTarget.z);
 
@@ -39,9 +39,16 @@ public class MoveStrategy : MonoBehaviour
 
         Vector2 ksVelocity = new Vector2(0.0f,0.0f);
 
-        if (vDir.magnitude > rSat)
-        {
-            ksVelocity = vMax * vDir.normalized;
+        if (isI)
+        {//I
+            if (vDir.magnitude > rSat)
+            {
+                ksVelocity = vMax * vDir.normalized;
+            }
+        }
+        else
+        {//II
+            ksVelocity = Mathf.Min(vMax, vDir.magnitude/t2t) * vDir.normalized;
         }
 
         return (new Vector3(ksVelocity.x, positionCurrent.y, ksVelocity.y));

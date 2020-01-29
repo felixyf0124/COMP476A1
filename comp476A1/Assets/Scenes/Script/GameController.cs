@@ -24,6 +24,8 @@ public class GameController : MonoBehaviour
 
     public float rSat;
 
+    public float t2t;
+
     List<GameObject> teamAList;
     List<GameObject> teamBList;
 
@@ -53,7 +55,8 @@ public class GameController : MonoBehaviour
             teamAChar.GetComponent<Character>().m_maxVelocity = maxVelocity;
             teamAChar.GetComponent<Character>().m_acceleration = acceleration;
             teamAChar.GetComponent<Character>().m_deccelerationMultiplier = deccelerationMultiplyer;
-            teamAChar.GetComponent<Character>().rSatisfaction = rSat;
+            teamAChar.GetComponent<Character>().rSat = rSat;
+            teamAChar.GetComponent<Character>().t2t = t2t;
             teamAChar.GetComponent<Character>().moveType = teamABehaviourType;
             teamAChar.transform.GetChild(3).GetComponent<ParticleSystem>().startColor = new Color(1.0f,0.0f,0.0f);
             teamAChar.tag = "A";
@@ -76,7 +79,8 @@ public class GameController : MonoBehaviour
             teamBChar.GetComponent<Character>().m_maxVelocity = maxVelocity;
             teamBChar.GetComponent<Character>().m_acceleration = acceleration;
             teamBChar.GetComponent<Character>().m_deccelerationMultiplier = deccelerationMultiplyer;
-            teamBChar.GetComponent<Character>().rSatisfaction = rSat;
+            teamBChar.GetComponent<Character>().rSat = rSat;
+            teamBChar.GetComponent<Character>().t2t = t2t;
             teamBChar.GetComponent<Character>().moveType = teamBBehaviourType;
             teamBChar.transform.GetChild(3).GetComponent<ParticleSystem>().startColor = new Color(0.0f, 0.0f, 0.9f);
             teamBChar.tag = "B";
@@ -91,7 +95,7 @@ public class GameController : MonoBehaviour
     void Update()
     {
         
-        if(Input.GetKey("1"))
+        if(Input.GetKey(KeyCode.Alpha1))
         {
             if (isTeamA)
             {
@@ -107,16 +111,32 @@ public class GameController : MonoBehaviour
                     teamBList[i].GetComponent<Character>().moveType = 0;
                 }
             }
-            
-
         }
 
-        if (Input.GetKeyDown("Shift"))
+        if (Input.GetKey(KeyCode.Alpha2))
+        {
+            if (isTeamA)
+            {
+                for (int i = 0; i < teamAList.Count; ++i)
+                {
+                    teamAList[i].GetComponent<Character>().moveType = 1;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < teamAList.Count; ++i)
+                {
+                    teamBList[i].GetComponent<Character>().moveType = 1;
+                }
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.LeftShift))
         {
             isTeamA = false;
         }
 
-        if (Input.GetKeyUp("Shift"))
+        if (Input.GetKeyUp(KeyCode.LeftShift))
         {
             isTeamA = true;
         }
